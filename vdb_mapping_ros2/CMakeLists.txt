@@ -45,40 +45,40 @@ set(THIS_PACKAGE_INCLUDE_DEPENDS
   backward_ros
 )
 
-add_library(${PROJECT_NAME} INTERFACE)
+add_library(${PROJECT_NAME} SHARED
+  src/vdb_mapping_ros2_component.cpp
+)
+
 target_include_directories(${PROJECT_NAME}
   INTERFACE
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>
 )
-target_link_libraries(${PROJECT_NAME} INTERFACE
+
+target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
+
+target_link_libraries(${PROJECT_NAME} PUBLIC
+  ${sensor_msgs_TARGETS}
+  ${std_msgs_TARGETS}
+  ${std_srvs_TARGETS}
+  ${vdb_mapping_interfaces_TARGETS}
+  ${visualization_msgs_TARGETS}
+  pcl_conversions::pcl_conversions
+  rclcpp::rclcpp
+  rclcpp_components::component
+  sensor_msgs::sensor_msgs_library
+  tf2::tf2
+  tf2_eigen::tf2_eigen
+  tf2_ros::tf2_ros
   vdb_mapping::vdb_mapping
 )
-
-target_compile_features(${PROJECT_NAME} INTERFACE cxx_std_17)
-
-ament_target_dependencies(${PROJECT_NAME} INTERFACE
-  ${THIS_PACKAGE_INCLUDE_DEPENDS}
-)
-
-add_library(vdb_mapping_ros2_component SHARED
-  src/vdb_mapping_ros2_component.cpp
-)
-target_link_libraries(vdb_mapping_ros2_component
-  ${PROJECT_NAME}
-)
-
-target_compile_features(vdb_mapping_ros2_component PUBLIC cxx_std_17)
-
-ament_target_dependencies(vdb_mapping_ros2_component
-  ${THIS_PACKAGE_INCLUDE_DEPENDS}
-)
-rclcpp_components_register_nodes(vdb_mapping_ros2_component
-  "vdb_mapping_ros2::vdb_mapping_ros2_component"
+rclcpp_components_register_nodes(${PROJECT_NAME}
+  PLUGIN "vdb_mapping_ros2::vdb_mapping_ros2"
+  EXECUTABLE vdb_mapping_ros2_node
 )
 
 install(TARGETS
-  vdb_mapping_ros2_component
+  ${PROJECT_NAME}
   DESTINATION lib
 )
 
@@ -113,7 +113,18 @@ if(BUILD_TESTING)
 endif()
 
 ament_export_dependencies(
-  ${THIS_PACKAGE_INCLUDE_DEPENDS}
+  rclcpp
+  rclcpp_components
+  sensor_msgs
+  std_msgs
+  std_srvs
+  tf2
+  tf2_eigen
+  tf2_ros
+  vdb_mapping_interfaces
+  visualization_msgs
+  pcl_conversions
+  backward_ros
 )
 ament_export_targets("export_${PROJECT_NAME}")
 ament_package()
