@@ -30,27 +30,12 @@ find_package(rclcpp_components REQUIRED)
 # further dependencies manually.
 # find_package(<dependency> REQUIRED)
 
-set(THIS_PACKAGE_INCLUDE_DEPENDS
-  rclcpp
-  rclcpp_components
-  sensor_msgs
-  std_msgs
-  std_srvs
-  tf2
-  tf2_eigen
-  tf2_ros
-  vdb_mapping_interfaces
-  visualization_msgs
-  pcl_conversions
-  backward_ros
-)
-
 add_library(${PROJECT_NAME} SHARED
   src/vdb_mapping_ros2_component.cpp
 )
 
 target_include_directories(${PROJECT_NAME}
-  INTERFACE
+  PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>
 )
@@ -75,11 +60,6 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
 rclcpp_components_register_nodes(${PROJECT_NAME}
   PLUGIN "vdb_mapping_ros2::vdb_mapping_ros2"
   EXECUTABLE vdb_mapping_ros2_node
-)
-
-install(TARGETS
-  ${PROJECT_NAME}
-  DESTINATION lib
 )
 
 install(TARGETS ${PROJECT_NAME}
